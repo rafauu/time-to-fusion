@@ -21,20 +21,20 @@ class UwbConnectivity:
             while True:
                 locationBytes = node_service.getCharacteristics(LOCATION_DATA_CHARACTERISTIC_UUID)[0].read()
                 parsedData = self._parse_location_data_bytes(locationBytes)
-                print(parsedData)
                 if parsedData['position_data']:
+                    print(parsedData)
                     break
             peripheral.disconnect()
             return parsedData
         except (bluepy.btle.BTLEDisconnectError):
             print("Connection error")
-            #self.getPositionFromTag()
+            return {}
 
     def _getMacAddress(self) -> "":
         config = configparser.ConfigParser()
         config.read('config.ini')
-        #return config['DEFAULT']['MacAddress']
-        return config['DEFAULT']['BackupMacAddress']
+        #return config['MAC_ADDRESSES']['MainMacAddress']
+        return config['MAC_ADDRESSES']['BackupMacAddress']
         
     def _parse_location_data_bytes(self, location_data_bytes) -> {}:
         if len(location_data_bytes) > 0:
