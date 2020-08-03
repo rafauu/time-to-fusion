@@ -28,13 +28,17 @@ class UwbConnectivity:
             return parsedData
         except (bluepy.btle.BTLEDisconnectError):
             print("Connection error")
-            return {}
+            try:
+                peripheral.disconnect()
+                return {}
+            except:
+                return {}
 
     def _getMacAddress(self) -> "":
         config = configparser.ConfigParser()
         config.read('config.ini')
-        #return config['MAC_ADDRESSES']['MainMacAddress']
-        return config['MAC_ADDRESSES']['BackupMacAddress']
+        return config['MAC_ADDRESSES']['MainMacAddress']
+        #return config['MAC_ADDRESSES']['BackupMacAddress']
         
     def _parse_location_data_bytes(self, location_data_bytes) -> {}:
         if len(location_data_bytes) > 0:
@@ -57,8 +61,8 @@ class UwbConnectivity:
             'location_data_content_name': LOCATION_DATA_CONTENT_NAMES[location_data_content] if location_data_content else None,
             'position_data': position_data}
     
-#def main():
-#    UwbConnectivity().getPositionFromTag()
-#
-#if __name__ == "__main__":
-#    main()
+def main():
+    UwbConnectivity().getPositionFromTag()
+
+if __name__ == "__main__":
+    main()
