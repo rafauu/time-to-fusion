@@ -19,8 +19,8 @@ class SensorFusion():
 
     def retrieveViableDevices(self) -> []:
         return list(map(lambda x: x['id'],
-                   list(filter(self._isDeviceInRange,
-                        self._getAllDevices()))))
+                        filter(self._isDeviceInRange,
+                               self._getAllDevices())))
 
     def _isDeviceInRange(self, device) -> bool:
         return abs(self._area(device["position"], self.coordinates[0], self.coordinates[1]) +
@@ -45,7 +45,7 @@ class SensorFusion():
         config = configparser.ConfigParser()
         config.read('config.ini')
         my_config_parser_dict = {s:dict(config.items(s)) for s in config.sections()}
-        devices = [yaml.load(x) for x in list(my_config_parser_dict['DEVICES'].values())]
+        devices = [yaml.safe_load(x) for x in list(my_config_parser_dict['DEVICES'].values())]
         return [ {'id':device['id'], 'position':Point(device['x'], device['y'])}
                  for device in devices ]
 

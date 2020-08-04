@@ -1,6 +1,7 @@
 import bluepy.btle
 import bitstruct
 import configparser
+import time
 
 LOCATION_DATA_CONTENT_NAMES = [
     'Position only',
@@ -13,26 +14,36 @@ AMOUNT_OF_BYTES_FOR_POSITION = 13
 SHORT_LOCAL_NAME_TYPE_CODE = 8
 
 class UwbConnectivity:
+    def __init__(self, peripheral):
+        self.peripheral = peripheral
+
     def getPositionFromTag(self) -> {}:
         try:
-            peripheral = bluepy.btle.Peripheral(self._getMacAddress())
-            node_service = peripheral.getServiceByUUID(NETWORK_NODE_SERVICE_UUID)
+            node_service = self.peripheral.getServiceByUUID(NETWORK_NODE_SERVICE_UUID)
             parsedData = {}
-            while True:
+            collectDataUntilPositionReceived = True
+            while collectDataUntilPositionReceived:
                 locationBytes = node_service.getCharacteristics(LOCATION_DATA_CHARACTERISTIC_UUID)[0].read()
                 parsedData = self._parse_location_data_bytes(locationBytes)
                 if parsedData['position_data']:
                     print(parsedData)
-                    break
-            peripheral.disconnect()
+                    collectDataUntilPositionReceived = False
             return parsedData
         except (bluepy.btle.BTLEDisconnectError):
-            print("Connection error")
-            try:
-                peripheral.disconnect()
-                return {}
-            except:
-                return {}
+            print("Device disconnected")
+            self._connectAfterTimeout()
+        except ():
+            print("Exception occured, restarting connection")
+            self._disconnectAfterTimeout()
+            self._connectAfterTimeout()
+
+    def _connectAfterTimeout(self) -> None:
+        time.sleep(1)
+        self.peripheral.connect(self._getMacAddress())
+
+    def _disconnectAfterTimeout(self) -> None:
+        time.sleep(1)
+        self.peripheral.disconnect()
 
     def _getMacAddress(self) -> "":
         config = configparser.ConfigParser()
