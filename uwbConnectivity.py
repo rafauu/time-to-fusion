@@ -1,7 +1,7 @@
 import bluepy.btle
 import bitstruct
-import configparser
 import time
+from database import Database
 
 LOCATION_DATA_CONTENT_NAMES = [
     'Position only',
@@ -39,18 +39,12 @@ class UwbConnectivity:
 
     def _connectAfterTimeout(self) -> None:
         time.sleep(1)
-        self.peripheral.connect(self._getMacAddress())
+        self.peripheral.connect(Database().getMacAddress())
 
     def _disconnectAfterTimeout(self) -> None:
         time.sleep(1)
         self.peripheral.disconnect()
 
-    def _getMacAddress(self) -> "":
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-        return config['MAC_ADDRESSES']['MainMacAddress']
-        #return config['MAC_ADDRESSES']['BackupMacAddress']
-        
     def _parse_location_data_bytes(self, location_data_bytes) -> {}:
         if len(location_data_bytes) > 0:
             location_data_content = location_data_bytes[0]

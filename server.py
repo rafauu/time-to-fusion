@@ -3,10 +3,11 @@ from uwbConnectivity import UwbConnectivity
 from orientationAdjuster import OrientationAdjuster
 from sensorFusion import SensorFusion
 import bluepy.btle
+from database import Database
 
 app = Flask(__name__)
 
-peripheral = bluepy.btle.Peripheral("11:22:33:44:55:66")
+peripheral = bluepy.btle.Peripheral(Database().getMacAddress())
 
 @app.route('/', methods=['POST'])
 def iotServer():
@@ -18,7 +19,7 @@ def iotServer():
 
     position = {}
     while not position:
-        print("Uwb device did not return position, retrying")
+        print("Getting position from uwb device")
         position = UwbConnectivity(peripheral).getPositionFromTag()
 
     x = position['position_data']['x']
