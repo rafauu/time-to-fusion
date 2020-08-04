@@ -1,26 +1,24 @@
 from flask import Flask, request, jsonify
-from uwbConnectivity import UwbConnectivity
 from orientationAdjuster import OrientationAdjuster
+from uwbConnectivity import UwbConnectivity
 from sensorFusion import SensorFusion
-import bluepy.btle
-from database import Database
 
 app = Flask(__name__)
 
-peripheral = bluepy.btle.Peripheral(Database().getMacAddress())
+orientationAdjuster = OrientationAdjuster()
+uwbConnectivity = UwbConnectivity()
 
 @app.route('/', methods=['POST'])
 def iotServer():
-    global peripheral
     print(request.json)
 
-    angle = OrientationAdjuster(request.json).getAngle()
+    angle = orientationAdjuster.getAngle(request.json)
     print(angle)
 
     position = {}
     while not position:
         print("Getting position from uwb device")
-        position = UwbConnectivity(peripheral).getPositionFromTag()
+        position = uwbConnectivity.getPositionFromTag()
 
     x = position['position_data']['x']
     y = position['position_data']['y']

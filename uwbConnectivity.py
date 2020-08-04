@@ -14,8 +14,9 @@ AMOUNT_OF_BYTES_FOR_POSITION = 13
 SHORT_LOCAL_NAME_TYPE_CODE = 8
 
 class UwbConnectivity:
-    def __init__(self, peripheral):
-        self.peripheral = peripheral
+    def __init__(self):
+        self.peripheral = bluepy.btle.Peripheral()
+        self.peripheral.connect(Database().getMacAddress())
 
     def getPositionFromTag(self) -> {}:
         try:
@@ -67,7 +68,7 @@ class UwbConnectivity:
             'position_data': position_data}
     
 def main():
-    UwbConnectivity().getPositionFromTag()
+    print(UwbConnectivity().getPositionFromTag())
 
 if __name__ == "__main__":
     main()
